@@ -2,12 +2,6 @@ services:
   grafana-lgtm:
     image: 'grafana/otel-lgtm:latest'
     ports:
-      - '3000:3000'     # Grafana UI
-      - '4317:4317'     # OTLP gRPC
-      - '4318:4318'     # OTLP HTTP
-      - '14268:14268'   # Jaeger HTTP
-      - '16686:16686'   # Jaeger UI
-      - '9411:9411'     # Zipkin
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-      - GF_USERS_ALLOW_SIGN_UP=false
+      - '3000:3000'
+      - '4317:4317'
+      - '4318:4318'

@@ -1,26 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
-    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
-
-    <springProperty scope="context" name="appName" source="spring.application.name" defaultValue="spring-app"/>
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
 
     <appender name="OTEL" class="io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender">
-        <exporter>
-            <otlp>
-                <endpoint>http://localhost:4318/v1/logs</endpoint>
-                <protocol>http/protobuf</protocol>
-            </otlp>
-        </exporter>
-        <loggerName>${appName}</loggerName>
     </appender>
 
     <root level="INFO">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="OTEL"/>
     </root>
-
-    <!-- Enable debug logging for OpenTelemetry -->
-    <logger name="io.opentelemetry" level="DEBUG"/>
-    <logger name="org.springframework.web" level="DEBUG"/>
 </configuration>

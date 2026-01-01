@@ -1,0 +1,61 @@
+receivers:
+  otlp:
+    protocols:
+      http:
+        endpoint: 0.0.0.0:4318
+      grpc:
+        endpoint: 0.0.0.0:4317
+
+  # File log receiver for collecting logs from files
+  filelog:
+    include: [ "/var/log/otel-collector/*.log" ]
+    start_at: beginning
+
+processors:
+  batch:
+    send_batch_size: 1000
+    timeout: 10s
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 1800
+    spike_limit_mib: 500
+
+  # Add resource attributes to identify the source of the logs
+  resource:
+    attributes:
+    - key: service.name
+      value: "springboot-otel-demo"
+      action: upsert
+
+exporters:
+  debug:
+    verbosity: detailed
+  
+  # Export logs to file (will be picked up by Promtail)
+  file:
+    path: /app/otel-logs/otel-collector-logs.json
+
+  # OTLP exporter for traces
+  otlp:
+    endpoint: "tempo:4317"
+    tls:
+      insecure: true
+
+  # Prometheus Remote Write exporter for metrics
+  prometheusremotewrite:
+    endpoint: "http://prometheus:9090/api/v1/write"
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch, memory_limiter, resource]
+      exporters: [otlp, debug]
+    metrics:
+      receivers: [otlp]
+      processors: [batch, memory_limiter, resource]
+      exporters: [prometheusremotewrite, debug]
+    logs:
+      receivers: [otlp]
+      processors: [batch, resource]
+      exporters: [file, debug]
